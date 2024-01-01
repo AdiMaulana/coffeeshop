@@ -1,9 +1,11 @@
 #include <stdio.h>
  
 #include "products.cpp"
+#include "transaction.cpp"
 
 int main() {
 	initProducts();
+	initTransactions();
 	
 	int option;
 	do {
@@ -28,16 +30,17 @@ int main() {
                 break;
                 
             case 5:
-                // record penjualan
-                printf("Fitur belum diimplementasikan.\n"); getch();
+                recordTransactionSales();
                 break;
-            case 6:
-                // record penjualan per tanggal 
-                printf("Fitur belum diimplementasikan.\n"); getch();
+                
+            case 6: 
+            	displayTransactionSales();
                 break;
+                
             case 7:
                 printf("Terima kasih! Program selesai.\n");
                 break;
+                
             default:
                 printf("Opsi tidak valid. Silakan pilih opsi 1-7.\n");
                 getch();

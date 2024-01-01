@@ -16,7 +16,6 @@ struct Product {
     float price;
 };
 
-struct Product products[10];
 int count = 0;
 
 FILE *fileProducts;
@@ -85,7 +84,6 @@ int isTargetRow(const Product *product, int targetId) {
     return product->id == targetId;
 }
 
-
 void displayProducts(bool holdScreen) {
 	
 	if (!holdScreen) {
@@ -96,11 +94,8 @@ void displayProducts(bool holdScreen) {
 	printf("\n \t -----------------------------------------\n");
 	
 	if (count == 0) {
-		printf("Produk Masih Kosong");	
-		
-	} else {
-		printf(" ID \t | Nama \t\t | Jumlah \t | Harga \t\n");
-	}
+		printf("Produk Masih Kosong");		
+	} 
 	
 	// Open the file in read mode
     fileProducts = fopen(fileProductsName, "r");
@@ -116,6 +111,8 @@ void displayProducts(bool holdScreen) {
  
  		// Skip the first row (header)
         if (isFirstRow) {
+        	printf(" ID \t | Nama \t\t | Jumlah \t | Harga \t\n");
+        	
             isFirstRow = 0;
             continue;
         }
@@ -393,3 +390,4 @@ void initProducts() {
     // Close the file
     fclose(fileProducts); 
 }
+

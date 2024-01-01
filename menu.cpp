@@ -25,7 +25,7 @@ void displayMenu() {
     printf("\n|\t| 3. Hapus Produk 	\t\t | \t |");
     printf("\n|\t| 4. Lihat Daftar Produk \t\t | \t |");
 	printf("\n|\t| 5. Penjualan \t\t\t\t | \t |");
-    printf("\n|\t| 6. Penjualan per Tanggal \t\t | \t |");
+    printf("\n|\t| 6. Lihat Penjualan (per Tanggal) \t | \t |");
     printf("\n|\t| 7. Keluar 	\t\t\t | \t |");
     printf("\n|\t -----------------------------------------  \t |");
     printf("\n==========================================================");
