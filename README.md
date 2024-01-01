@@ -10,6 +10,8 @@ list feature:
 
 - lihat daftar produk
 
+  ![Screenshot 2024-01-01 211325](https://github.com/AdiMaulana/coffeeshop/assets/30741182/afbfea7a-3cf6-4b3d-852e-410454e6716f)
+
 - penjualan 
 
 - lihat penjualan per tanggal
