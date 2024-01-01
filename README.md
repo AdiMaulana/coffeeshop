@@ -19,9 +19,16 @@ list feature:
 
   ![Screenshot 2024-01-01 213927](https://github.com/AdiMaulana/coffeeshop/assets/30741182/7cf1a3fc-b881-44e8-a98a-09e5a9beb72e)
 
-- penjualan 
+- penjualan
+
+  ![Screenshot 2024-01-02 005907](https://github.com/AdiMaulana/coffeeshop/assets/30741182/f6626516-1c62-4e46-a874-181829af540c)
 
 - lihat penjualan per tanggal
 setiap penjualan tercatat tanggal nya
+
+
+  ![Screenshot 2024-01-02 010024](https://github.com/AdiMaulana/coffeeshop/assets/30741182/11d12b21-47a8-4d30-bdc2-c281894b4249)
+
+
 
 
