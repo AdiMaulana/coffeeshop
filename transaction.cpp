@@ -16,6 +16,7 @@ struct Date {
 struct Transaction {
 	int productId;
 	char productName[50];
+	char customerName[50];
 	int amount;
 	Date date;
     int total;
@@ -37,13 +38,16 @@ const char fileListProductsName[] = "products.csv";
 Transaction getInputTransaction(){
 	Transaction t;
 	
-    printf("\nMasukkan ID Produk yang Terjual: ");
+    gotoxy(x+5, y+20); printf("Masukkan ID Produk yang Dipesan: ");
     scanf("%d", &t.productId);
     
-    printf("Jumlah Produk Terjual: ");
+    gotoxy(x+5, y+21); printf("Nama Pemesan : ");
+    scanf("%s", &t.customerName);
+    
+    gotoxy(x+5, y+22); printf("Jumlah : ");
     scanf("%d", &t.amount);
     
-    printf("Tanggal Penjualan (dd-mm-yyyy): ");
+    gotoxy(x+5, y+23); printf("Tanggal Penjualan (dd-mm-yyyy): ");
     scanf("%d-%d-%d", &t.date.dd, &t.date.mm, &t.date.yyyy);
     
     return t;
@@ -202,14 +206,14 @@ void updateQuantityProductById(Products p) {
 		    perror("Error renaming file"); 
 		}
 		
-		printf("\nStock Produk %d berhasil diupdate", targetId);	    
+		gotoxy(x+5, y+26); printf("Stock Produk %d berhasil diupdate", targetId);	    
 	} 
 }
 
 void viewProducts() {
 	
-	printf("\n \t   Jenis Produk");
-	printf("\n \t -----------------------------------------\n");
+	gotoxy(x+50, y+5); printf("Jenis Produk");
+	gotoxy(x+50, y+6); drawline(60);
 	
 	int countProducts = 0;
 	
@@ -222,12 +226,17 @@ void viewProducts() {
     char row[MAX_ROW_LENGTH];
     int isFirstRow = 1;
     
-	// Read and loop through rows of data    
+	// Read and loop through rows of data
+	int i = 1;
     while (fgets(row, sizeof(row), listProducts) != NULL) {
     	
  		// Skip the first row (header)
         if (isFirstRow) {	
-        	printf(" ID \t | Nama \t\t | Jumlah \t | Harga \t\n");
+        	gotoxy(x+50, y+7); printf("ID");
+			gotoxy(x+57, y+7); printf("| Nama Produk");
+			gotoxy(x+85, y+7); printf("| Jumlah");
+			gotoxy(x+95, y+7); printf("| Harga");
+			
             isFirstRow = 0;
             continue;
         }
@@ -261,13 +270,17 @@ void viewProducts() {
             fieldCount++;
         }
  		
- 		printf(" %d \t | %s \t\t | %d \t\t | %.0f \t\n", product.id, product.name, product.quantity, product.price);
- 		
- 		countProducts++;
+ 		gotoxy(x+50, y+i+7); printf("%d", product.id);
+		gotoxy(x+57, y+i+7); printf("| %s ", product.name);
+		gotoxy(x+85, y+i+7); printf("| %d ", product.quantity);
+		gotoxy(x+95, y+i+7); printf("| %.0f ", product.price);
+		
+		countProducts++;
+		i++;
     }
 
 	if (countProducts == 0) {
-		printf("Produk Masih Kosong");		
+		gotoxy(x+50, y+7); printf("Produk Masih Kosong");		
 	}  
 	
     // Close the file
@@ -276,8 +289,8 @@ void viewProducts() {
 
 void recordTransactionSales() {
 	
-	printf("\n \t   Penjualan");
-	printf("\n \t -----------------------------------------");
+	gotoxy(x+5, y+18); printf("Penjualan");
+	gotoxy(x+5, y+19); drawline(40);
 	
 	viewProducts();
 	
@@ -298,7 +311,7 @@ void recordTransactionSales() {
 	}
     
     if (countTrx == 0) {
-    	fprintf(fileTransactions, "Product Id|Product Name|Amount|Transaction Date|Total\n");
+    	fprintf(fileTransactions, "Product Id|Product Name|Customer Name|Amount|Transaction Date|Total\n");
 	}
 	
 	Products product = findProductById(trx.productId);
@@ -307,28 +320,30 @@ void recordTransactionSales() {
 	trx.total = trx.amount * product.price;
 	    
 	// Write data to the file 
-	fprintf(fileTransactions, "%d|%s|%d|%d-%d-%d|%d\n", trx.productId, product.name, trx.amount, trx.date.dd, trx.date.mm, trx.date.yyyy, trx.total);
+	fprintf(fileTransactions, "%d|%s|%s|%d|%d-%d-%d|%d\n", trx.productId, product.name, trx.customerName, trx.amount, trx.date.dd, trx.date.mm, trx.date.yyyy, trx.total);
 	
     // Close the file
     fclose(fileTransactions);
     
     countTrx++;
     
-    printf("\nPenjualan berhasil dicatat. Total penjualan: Rp. %d", trx.total);
+    gotoxy(x+5, y+25); printf("Penjualan berhasil dicatat. Total penjualan: Rp. %d", trx.total);
     
     updateQuantityProductById(product);
     
-    printf("\nTekan ENTER untuk lanjut ");
+    viewProducts();
+    
+    gotoxy(x+5, y+27); printf("Tekan ENTER untuk lanjut ");
     getch();
 }
 
 void displayTransactionSales() {
-		
-	printf("\n \t   Lihat Penjualan (per Tanggal)");
-	printf("\n \t -----------------------------------------\n");
+			
+	gotoxy(x+48, y+5); printf("Lihat Penjualan (per Tanggal)");
+	gotoxy(x+48, y+6); drawline(64);
 	
 	if (countTrx == 0) {
-		printf("Transaksi Masih Kosong");		
+		gotoxy(x+48, y+7); printf("Transaksi Masih Kosong");		
 	} 
 	
 	// Open the file in read mode
@@ -341,12 +356,17 @@ void displayTransactionSales() {
     int isFirstRow = 1;
     
 	// Read and loop through rows of data    
+	int i = 1;
     while (fgets(row, sizeof(row), fileTransactions) != NULL) {
  
  		// Skip the first row (header)
         if (isFirstRow) {
-        	printf("Id Produk | Nama Produk  | Jumlah \t| Tanggal \t | Total \t\n");
-        	
+        	gotoxy(x+48,  y+7); printf("Tanggal");
+			gotoxy(x+59,  y+7); printf("%c Nama Pemesan", separator);
+			gotoxy(x+78,  y+7); printf("%c Produk", separator);
+			gotoxy(x+93,  y+7); printf("%c Jumlah", separator);
+			gotoxy(x+102, y+7); printf("%c Nominal", separator);
+			 	
             isFirstRow = 0;
             continue;
         }
@@ -368,13 +388,17 @@ void displayTransactionSales() {
                     strncpy(trx.productName, data, sizeof(trx.productName) - 1);
                     trx.productName[sizeof(trx.productName) - 1] = '\0'; // Ensure null-termination
                     break;
-                case 2:
-					trx.amount = atoi(data);
+				case 2:
+                    strncpy(trx.customerName, data, sizeof(trx.customerName) - 1);
+                    trx.customerName[sizeof(trx.customerName) - 1] = '\0'; // Ensure null-termination
                     break;
                 case 3:
-                    strncpy(trxDate, data, sizeof(trxDate));
+					trx.amount = atoi(data);
                     break;
                 case 4:
+                    strncpy(trxDate, data, sizeof(trxDate));
+                    break;
+                case 5:
 					trx.total = atoi(data);
                     break;
             }
@@ -385,14 +409,20 @@ void displayTransactionSales() {
             fieldCount++;
         }
  		
- 		printf(" %d  \t  | %s \t | %d \t\t| %s \t | %d \t\n", trx.productId, trx.productName, trx.amount, trxDate, trx.total);
+ 		gotoxy(x+48,  y+i+7); printf("%s", trxDate);
+		gotoxy(x+59,  y+i+7); printf("%c %s", separator, trx.customerName);
+		gotoxy(x+78,  y+i+7); printf("%c %s", separator, trx.productName);
+		gotoxy(x+93,  y+i+7); printf("%c %d", separator, trx.amount);
+		gotoxy(x+102, y+i+7); printf("%c %d", separator, trx.total);
+	
+		i++;		
     }
 
 
     // Close the file
     fclose(fileTransactions);
     
-    printf("\nTekan ENTER untuk lanjut ");
+    gotoxy(x+48, y+i+8); printf("Tekan ENTER untuk lanjut ");
 	getch();	
 }
 

@@ -2,8 +2,10 @@
  
 #include "products.cpp"
 #include "transaction.cpp"
+#include "application.cpp"
 
 int main() {
+	
 	initProducts();
 	initTransactions();
 	
@@ -36,9 +38,13 @@ int main() {
             case 6: 
             	displayTransactionSales();
                 break;
+            
+            case 7: 
+            	gotoxy(x+50, y+5); printf("Fitur dalam tahap pengembangan");
+                break;
                 
-            case 7:
-                printf("Terima kasih! Program selesai.\n");
+            case 8:
+                gotoxy(x+5, y+19); printf("Terima kasih! Program selesai.");
                 break;
                 
             default:
@@ -46,7 +52,7 @@ int main() {
                 getch();
                 break;
         }
-    } while (option != 7);
+    } while (option != 8);
     
 	return 0;
 }

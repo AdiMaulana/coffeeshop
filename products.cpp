@@ -25,76 +25,29 @@ Product getInputProduct(bool isNewProduct){
 	Product p;
 	
 	if (isNewProduct) {
-		printf("Masukkan ID Produk: ");
+		gotoxy(x+5, y+20); printf("ID Produk: ");
     	scanf("%d", &p.id);
 	}
 	
-    printf("Masukkan Nama Produk Baru: ");
+    gotoxy(x+5, y+21); printf("Nama Produk Baru: ");
     scanf("%s", &p.name);
     
-    printf("Masukkan Jumlah Produk: ");
+    gotoxy(x+5, y+22); printf("Jumlah Produk: ");
     scanf("%d", &p.quantity);
     
-    printf("Masukkan Harga Produk: ");
+    gotoxy(x+5, y+23); printf("Harga Produk: ");
     scanf("%f", &p.price);
     
     return p;
 }
 
-void addProducts() {
-	
-	printf("\n \t   Tambah Produk");
-	printf("\n \t -----------------------------------------\n");
-	
-	Product product = getInputProduct(true) ;
-	
-	// Check if the file exists
-    if (access(fileProductsName, F_OK) != -1) {
-    	// Open the file in append mode ("a")
-    	fileProducts = fopen(fileProductsName, "a");
-    	 if (fileProducts == NULL) {
-	        perror("Error opening file products for writing ");
-	    }
-	} else {
-		fileProducts = fopen(fileProductsName, "w");
-	    if (fileProducts == NULL) {
-	        perror("Could not open the file products");
-	    }	
-	}
-    
-    if (count == 0) {
-    	fprintf(fileProducts, "Id|Name|Quantity|Price\n");
-	}
-	    
-	// Write data to the file 
-	fprintf(fileProducts, "%d|%s|%d|%.0f\n", product.id, product.name, product.quantity, product.price);
-	
-    // Close the file
-    fclose(fileProducts);
-    
-    count++;
-    
-    printf("\nProduk berhasil ditambahkan");
-    printf("\nTekan ENTER untuk lanjut ");
-    getch();
-}
-
-// Function to check if a row should be deleted based on a condition
-int isTargetRow(const Product *product, int targetId) {
-    return product->id == targetId;
-}
-
 void displayProducts(bool holdScreen) {
-	
-	if (!holdScreen) {
-		printHeaderTitle();	
-	}
-	
-	printf("\n \t   Lihat Daftar Produk");
-	printf("\n \t -----------------------------------------\n");
+		
+	gotoxy(x+50, y+5); printf("Lihat Daftar Produk");
+	gotoxy(x+50, y+6); drawline(60);
 	
 	if (count == 0) {
-		printf("Produk Masih Kosong");		
+		gotoxy(x+50, y+7); printf("Produk Masih Kosong");		
 	} 
 	
 	// Open the file in read mode
@@ -107,11 +60,15 @@ void displayProducts(bool holdScreen) {
     int isFirstRow = 1;
     
 	// Read and loop through rows of data    
+    int i = 1;   
     while (fgets(row, sizeof(row), fileProducts) != NULL) {
- 
+    	
  		// Skip the first row (header)
         if (isFirstRow) {
-        	printf(" ID \t | Nama \t\t | Jumlah \t | Harga \t\n");
+        	gotoxy(x+50, y+7); printf("ID");
+			gotoxy(x+57, y+7); printf("%c Nama Produk", separator);
+			gotoxy(x+85, y+7); printf("%c Jumlah", separator);
+			gotoxy(x+95, y+7); printf("%c Harga", separator);
         	
             isFirstRow = 0;
             continue;
@@ -146,17 +103,68 @@ void displayProducts(bool holdScreen) {
             fieldCount++;
         }
  		
- 		printf(" %d \t | %s \t\t | %d \t\t | %.0f \t\n", product.id, product.name, product.quantity, product.price);
+ 		gotoxy(x+50, y+i+7); printf("%d", product.id);
+		gotoxy(x+57, y+i+7); printf("%c %s ", separator, product.name);
+		gotoxy(x+85, y+i+7); printf("%c %d ", separator, product.quantity);
+		gotoxy(x+95, y+i+7); printf("%c %.0f ", separator, product.price);
+		
+		i++;
     }
-
 
     // Close the file
     fclose(fileProducts);
     
     if (holdScreen) {
-    	printf("\nTekan ENTER untuk lanjut ");
+    	gotoxy(x+50, y+i+8); printf("Tekan ENTER untuk lanjut ");
 		getch();	
 	}
+}
+
+void addProducts() {
+	
+	displayProducts(0);
+	
+	gotoxy(x+5, y+18); printf("Tambah Data Produk");
+	gotoxy(x+5, y+19); drawline(40);
+	
+	Product product = getInputProduct(true) ;
+	
+	// Check if the file exists
+    if (access(fileProductsName, F_OK) != -1) {
+    	// Open the file in append mode ("a")
+    	fileProducts = fopen(fileProductsName, "a");
+    	 if (fileProducts == NULL) {
+	        perror("Error opening file products for writing ");
+	    }
+	} else {
+		fileProducts = fopen(fileProductsName, "w");
+	    if (fileProducts == NULL) {
+	        perror("Could not open the file products");
+	    }	
+	}
+    
+    if (count == 0) {
+    	fprintf(fileProducts, "Id|Name|Quantity|Price\n");
+	}
+	    
+	// Write data to the file 
+	fprintf(fileProducts, "%d|%s|%d|%.0f\n", product.id, product.name, product.quantity, product.price);
+	
+    // Close the file
+    fclose(fileProducts);
+    
+    count++;
+    
+    displayProducts(0);
+    
+    gotoxy(x+5, y+25); printf("Produk berhasil ditambahkan");
+    gotoxy(x+5, y+26); printf("Tekan ENTER untuk lanjut");
+    getch();
+}
+
+// Function to check if a row should be deleted based on a condition
+int isTargetRow(const Product *product, int targetId) {
+    return product->id == targetId;
 }
 
 void updateProducts() {
@@ -165,11 +173,11 @@ void updateProducts() {
 	
 	if (count != 0) {
 		
-		printf("\n \t   Edit Produk");
-		printf("\n \t -----------------------------------------\n");
-		
+		gotoxy(x+5, y+18); printf("Update Data Produk");
+		gotoxy(x+5, y+19); drawline(40);
+		 
 		int targetId;
-	    printf("\nMasukkan ID Produk yang akan diupdate: ");
+	    gotoxy(x+5, y+20); printf("Masukkan ID Produk yang akan diupdate: ");
 	    scanf("%d", &targetId);
 	    
 	    if (targetId > 0 ) {
@@ -257,14 +265,16 @@ void updateProducts() {
 		        perror("Error renaming file"); 
 		    }
 		
-		    printf("\nID Produk %d berhasil diupdate", targetId);
+		    gotoxy(x+5, y+25); printf("ID Produk %d berhasil diupdate", targetId);
 		    
 	    } else {
-	        printf("\nID Produk tidak valid.");
+	        gotoxy(x+5, y+25); printf("ID Produk tidak valid.");
 	    }
 	}
 	
-	printf("\nTekan ENTER untuk lanjut ");
+	displayProducts(0);
+	
+	gotoxy(x+5, y+26); printf("Tekan ENTER untuk lanjut ");
     getch();
 }
 
@@ -274,14 +284,14 @@ void deleteProducts() {
 	
 	if (count != 0) {
 		
-		printf("\n \t   Hapus Produk");
-		printf("\n \t -----------------------------------------\n");
-		
+		gotoxy(x+5, y+18); printf("Hapus Produk");
+		gotoxy(x+5, y+19); drawline(40);
+			
 		FILE *tempFile; 
 	    char tempFilename[] = "temp_products.csv"; 
 	    
 	    int targetId; // ID of the row to delete
-	    printf("\nMasukkan ID Produk yang akan dihapus: ");
+	    gotoxy(x+5, y+20); printf("Masukkan ID Produk yang akan dihapus: ");
 	    scanf("%d", &targetId);
 	
 	    // Open the original file in read mode
@@ -358,11 +368,13 @@ void deleteProducts() {
 	    if (rename(tempFilename, fileProductsName) != 0) {
 	        perror("Error renaming file"); 
 	    }
-	
-	    printf("\nID Produk %d berhasil dihapus", targetId);
+		
+	    gotoxy(x+5, y+25); printf("ID Produk %d berhasil dihapus", targetId);
 	}
 	
-    printf("\nTekan ENTER untuk lanjut ");
+	displayProducts(0);
+	
+    gotoxy(x+5, y+26); printf("Tekan ENTER untuk lanjut ");
     getch();
 }
 

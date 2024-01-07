@@ -1,8 +1,7 @@
-Product Id|Product Name|Amount|Transaction Date|Total
-10|Affogato|10|30-12-2023|710000
-3|Latte|3|29-12-2023|153000
-2|Espresso|5|12-12-2023|331500
-9|FlattWhite|2|10-1-2023|100000
-9|FlattWhite|4|12-12-2023|200000
-2|Espresso|5|13-12-2023|331500
-3|Latte|15|10-10-2023|765000
+Product Id|Product Name|Customer Name|Amount|Transaction Date|Total
+1|Americano|Adi|2|07-01-2024|82000
+1|Americano|Ismi|1|07-01-2024|41000
+1|Americano|Adi|1|07-01-2024|41000
+10|Affogato|Boy|2|22-12-2023|142000
+1|Americano|Bagas|10|20-12-2023|410000
+2|Espresso|Albert|5|12-12-2023|331500
