@@ -49,4 +49,6 @@ setiap penjualan tercatat tanggal transaksi nya
   ![Screenshot 2024-02-04 115002](https://github.com/AdiMaulana/coffeeshop/assets/30741182/db314b15-5225-44bf-9f3e-958d2b04f336)
 
 
+- Keluar
+  ![Screenshot 2024-02-04 115246](https://github.com/AdiMaulana/coffeeshop/assets/30741182/e2850565-4ad7-4a7d-86c5-9ccce7be9a9a)
 
