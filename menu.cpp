@@ -61,6 +61,8 @@ void printHeaderTitle() {
 	    system("clear");
 	#endif
 	
+	// system("color 2F");
+	
 	gotoxy(x, y); printf("%c", 201);	
 	gotoxy(x, y+3); printf("%c", 204);
 	
@@ -125,7 +127,7 @@ void displayMenu() {
 	gotoxy(x+width, y+4+height); printf("%c", 188);
 		
     gotoxy(x+5,  y+5); printf("DAFTAR MENU");
-    gotoxy(x+5,  y+6); drawline(40);
+    gotoxy(x+5,  y+6); drawline(35);
     gotoxy(x+5,  y+7); printf("1. Tambah Data Produk");
     gotoxy(x+5,  y+8); printf("2. Update Data Produk");
     gotoxy(x+5,  y+9); printf("3. Hapus Data Produk");
@@ -134,7 +136,7 @@ void displayMenu() {
     gotoxy(x+5, y+12); printf("6. Lihat Penjualan (per Tanggal)");
     gotoxy(x+5, y+13); printf("7. Edit Profil Toko");
 	gotoxy(x+5, y+14); printf("8. Keluar");
-    gotoxy(x+5, y+15); drawline(40);
+    gotoxy(x+5, y+15); drawline(35);
     gotoxy(x+5, y+16); printf("Pilih Opsi Anda (1-8) : ");
 	gotoxy(x+29, y+16);
 }
@@ -146,74 +148,40 @@ struct AppConfig {
 
 AppConfig getInputConfig() {
 	
-	AppConfig c;
-	
+	AppConfig config;
+			
 	gotoxy(x+5, y+20); printf("Masukkan Nama Toko: ");
-    scanf("%s", &c.name);
+	fflush(stdin);  // Clear the input buffer
+    fgets(config.name, sizeof(config.name), stdin);
+    // Remove the newline character, if present
+    config.name[strcspn(config.name, "\n")] = '\0';
     
     gotoxy(x+5, y+21); printf("Alamat Toko: ");
-    scanf("%s", &c.address);
-    
-    return c;
-}
+    fgets(config.address, sizeof(config.address), stdin);
+    // Remove the newline character, if present
+    config.address[strcspn(config.address, "\n")] = '\0';
  
-void updateKeyValue(KeyValuePair *kvs, int count, const char *targetKey, const char *newValue) {
-    for (int i = 0; i < count; ++i) {
-        if (strcmp(kvs[i].key, targetKey) == 0) {
-            strcpy(kvs[i].value, newValue);
-            return;
-        }
-    }
-}
-
-void writeToFile(const char *filename, KeyValuePair *kvs, int count) {
-    FILE *file = fopen(filename, "w");
-    if (!file) {
-        perror("Error opening file for writing");
-        exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < count; ++i) {
-        fprintf(file, "%s=%s\n", kvs[i].key, kvs[i].value);
-    }
-
-    fclose(file);
+    return config;
 }
 
 void updateConfigApp() {
 	
 	gotoxy(x+5, y+18); printf("Edit Profil Toko");
-	gotoxy(x+5, y+19); drawline(40);
+	gotoxy(x+5, y+19); drawline(35);
 	
 	AppConfig config = getInputConfig();
 	
-    fileProperties = fopen(filePropertiesName, "r");
+    FILE *fileProperties = fopen(filePropertiesName, "w");
+    
     if (fileProperties == NULL) {
-        perror("Error opening file properties");
+        fprintf(stderr, "Error opening file %s for writing.\n", filePropertiesName);
+        return;
     }
 
-    char line[MAX_LINE_LENGTH];
-    KeyValuePair kvArray[MAX_LINE_LENGTH];
-    int kvCount = 0;
- 
-    while (fgets(line, sizeof(line), fileProperties) != NULL) {
-        int result = parseLine(line, &kvArray[kvCount]);
-
-        if (result == 1) {
-            kvCount++;
-        } else if (result == -1) {
-            fprintf(stderr, "Error parsing line: %s", line);
-        }
-    }
+    fprintf(fileProperties, "coffee-shop.name=%s\n", config.name);
+    fprintf(fileProperties, "coffee-shop.address=%s\n", config.address);
 
     fclose(fileProperties);
-    
-    // Update the key-value pair with a new value
-    updateKeyValue(kvArray, kvCount, "coffee-shop.name", config.name);
-    updateKeyValue(kvArray, kvCount, "address", config.address);
-
-    // Write the updated key-value pairs back to the file
-    writeToFile(filePropertiesName, kvArray, kvCount);
 
 	gotoxy(x+5, y+25); printf("Config berhasil diupdate");
     gotoxy(x+5, y+26); printf("Tekan ENTER untuk lanjut");

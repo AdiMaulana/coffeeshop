@@ -11,7 +11,7 @@
 
 struct Product {
 	int id;
-    char name[50];
+    char name[30];
     int quantity;
     float price;
 };
@@ -21,31 +21,132 @@ int count = 0;
 FILE *fileProducts;
 const char fileProductsName[] = "products.csv";
 	
+void clearInput(int length, int x, int y) {
+	for(int i=0; i<length; i++) {
+		 gotoxy(x+i, y); printf(" ");
+	}	
+}
+
+const char errMessageInvalidId[] = "(ID Produk Tidak Valid, Masukkan Angka Numerik)";
+const char errMessageMaxName[] = "(Nama Produk Maksimal 30 Karakter)";
+const char errMessageInvalidQuantity[] = "(Jumlah Produk Tidak Valid, Masukkan Angka Numerik)";
+const char errMessageInvalidPrice[] = "(Harga Produk Tidak Valid, Masukkan Angka Numerik)";
+
 Product getInputProduct(bool isNewProduct){
 	Product p;
 	
+	char inputTemp[100];
+	int length;
+	
 	if (isNewProduct) {
-		gotoxy(x+5, y+20); printf("ID Produk: ");
-    	scanf("%d", &p.id);
+		do {
+			gotoxy(x+5, y+20); printf("ID Produk (Numerik) : ");
+    		
+    		fgets(inputTemp, sizeof(inputTemp), stdin);
+ 
+	        if (sscanf(inputTemp, "%d", &p.id) == 1) {
+	        
+				clearInput(strlen(errMessageInvalidId), x+5, y+21);	
+	        	
+	            break; // Exit the loop when a numeric input is provided
+	            
+	        } else {  
+	    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+	
+	    		length = strlen(inputTemp);
+	    		
+	    		clearInput(length, x+27, y+20);		
+	    
+	            gotoxy(x+5, y+21); printf(errMessageInvalidId);
+	        }
+	        
+		} while(1);	
 	}
 	
-    gotoxy(x+5, y+21); printf("Nama Produk Baru: ");
-    scanf("%s", &p.name);
+	do {
+		gotoxy(x+5, y+21); printf("Nama Produk Baru: "); 
+		fflush(stdin);  
+	    
+		fgets(inputTemp, sizeof(inputTemp), stdin); 
+	    
+	    inputTemp[strcspn(inputTemp, "\n")] = '\0';
+				
+		if (strlen(inputTemp) > 30) {
+			
+			clearInput(strlen(inputTemp), x+23, y+21);		
     
-    gotoxy(x+5, y+22); printf("Jumlah Produk: ");
-    scanf("%d", &p.quantity);
+            gotoxy(x+5, y+22); printf(errMessageMaxName);
+            
+		} else { 
+			clearInput(strlen(errMessageMaxName), x+5, y+22);	
+			
+			strcpy(p.name, inputTemp);
+    		break;
+		}
+	} while (1);
     
-    gotoxy(x+5, y+23); printf("Harga Produk: ");
-    scanf("%f", &p.price);
+	do {
+        gotoxy(x+5, y+22); printf("Jumlah Produk: ");
+        
+        fgets(inputTemp, sizeof(inputTemp), stdin);
+ 
+        if (sscanf(inputTemp, "%d", &p.quantity) == 1) {
+        
+			clearInput(strlen(errMessageInvalidQuantity), x+5, y+23);	
+        	
+            break; // Exit the loop when a numeric input is provided
+            
+        } else {  
+    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+
+    		length = strlen(inputTemp);
+    		
+    		clearInput(length, x+20, y+22);		
+    
+            gotoxy(x+5, y+23); printf(errMessageInvalidQuantity);
+        }
+    } while (1);
+    
+    do {
+        gotoxy(x+5, y+23); printf("Harga Produk: ");
+        
+        fgets(inputTemp, sizeof(inputTemp), stdin);
+ 
+        if (sscanf(inputTemp, "%f", &p.price) == 1) {
+        	
+        	clearInput(strlen(errMessageInvalidPrice), x+5, y+24);	
+        	
+            break; // Exit the loop when a numeric input is provided
+            
+        } else {	 
+    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+
+    		length = strlen(inputTemp);
+    		
+    		clearInput(length, x+19, y+23);		
+    
+            gotoxy(x+5, y+24); printf(errMessageInvalidPrice);
+        }
+    } while (1);
     
     return p;
 }
 
+void clearTableScreen() {
+	for (int i=1; i<height-4; i++) {
+		for (int j=1; j<width-50; j++) {
+			gotoxy(x+j+50, y+i+6); printf(" ");		
+		}
+	}	
+}
+
 void displayProducts(bool holdScreen) {
+	
+	clearTableScreen();
 		
 	gotoxy(x+50, y+5); printf("Lihat Daftar Produk");
 	gotoxy(x+50, y+6); drawline(60);
-	
+		
 	if (count == 0) {
 		gotoxy(x+50, y+7); printf("Produk Masih Kosong");		
 	} 
@@ -60,15 +161,16 @@ void displayProducts(bool holdScreen) {
     int isFirstRow = 1;
     
 	// Read and loop through rows of data    
-    int i = 1;   
+    int rowCount = 0;   
     while (fgets(row, sizeof(row), fileProducts) != NULL) {
-    	
+    	    	
  		// Skip the first row (header)
         if (isFirstRow) {
-        	gotoxy(x+50, y+7); printf("ID");
+        	gotoxy(x+50, y+7); printf("%c ID", separator);
 			gotoxy(x+57, y+7); printf("%c Nama Produk", separator);
 			gotoxy(x+85, y+7); printf("%c Jumlah", separator);
 			gotoxy(x+95, y+7); printf("%c Harga", separator);
+        	gotoxy(x+50, y+8); drawline(60);
         	
             isFirstRow = 0;
             continue;
@@ -103,19 +205,35 @@ void displayProducts(bool holdScreen) {
             fieldCount++;
         }
  		
- 		gotoxy(x+50, y+i+7); printf("%d", product.id);
-		gotoxy(x+57, y+i+7); printf("%c %s ", separator, product.name);
-		gotoxy(x+85, y+i+7); printf("%c %d ", separator, product.quantity);
-		gotoxy(x+95, y+i+7); printf("%c %.0f ", separator, product.price);
+ 		gotoxy(x+50, y+rowCount+9); printf("%c %d", separator, product.id);
+		gotoxy(x+57, y+rowCount+9); printf("%c %s ", separator, product.name);
+		gotoxy(x+85, y+rowCount+9); printf("%c %d ", separator, product.quantity);
+		gotoxy(x+95, y+rowCount+9); printf("%c %.0f ", separator, product.price);
 		
-		i++;
+    	rowCount++;
     }
-
+    
+    gotoxy(x+50, y+rowCount+9); drawline(60);
+    
+    for (int i = 0; i<rowCount+3; i++) {
+    	gotoxy(x+110, y+i+6); printf("%c", separator);
+	}
+	
+	int cord_x[5] = {50, 57, 85, 95, 110};
+	for (int i=0; i<4;i+=2) {
+	    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+	        gotoxy(x+ cord_x[j], y+i+6); printf("+");
+	    }
+	    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+	    	gotoxy(x+ cord_x[j], y+rowCount+9); printf("+");
+		}
+	}
+	 
     // Close the file
     fclose(fileProducts);
     
     if (holdScreen) {
-    	gotoxy(x+50, y+i+8); printf("Tekan ENTER untuk lanjut ");
+    	gotoxy(x+50, y+rowCount+10); printf("Tekan ENTER untuk lanjut ");
 		getch();	
 	}
 }
@@ -125,7 +243,7 @@ void addProducts() {
 	displayProducts(0);
 	
 	gotoxy(x+5, y+18); printf("Tambah Data Produk");
-	gotoxy(x+5, y+19); drawline(40);
+	gotoxy(x+5, y+19); drawline(35);
 	
 	Product product = getInputProduct(true) ;
 	
@@ -174,7 +292,7 @@ void updateProducts() {
 	if (count != 0) {
 		
 		gotoxy(x+5, y+18); printf("Update Data Produk");
-		gotoxy(x+5, y+19); drawline(40);
+		gotoxy(x+5, y+19); drawline(35);
 		 
 		int targetId;
 	    gotoxy(x+5, y+20); printf("Masukkan ID Produk yang akan diupdate: ");
@@ -285,7 +403,7 @@ void deleteProducts() {
 	if (count != 0) {
 		
 		gotoxy(x+5, y+18); printf("Hapus Produk");
-		gotoxy(x+5, y+19); drawline(40);
+		gotoxy(x+5, y+19); drawline(35);
 			
 		FILE *tempFile; 
 	    char tempFilename[] = "temp_products.csv"; 
@@ -352,7 +470,9 @@ void deleteProducts() {
 	 
 	        if (!isTargetRow(&product, targetId)) { 
 	            fprintf(tempFile, "%d|%s|%d|%.0f\n", product.id, product.name, product.quantity, product.price);
-	        }
+	        } else {
+	        	count--;
+			}
 	    }
 	
 	    // Close both files

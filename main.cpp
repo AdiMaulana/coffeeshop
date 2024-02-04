@@ -40,15 +40,15 @@ int main() {
                 break;
             
             case 7: 
-            	gotoxy(x+50, y+5); printf("Fitur dalam tahap pengembangan");
+            	updateConfigApp();
                 break;
                 
             case 8:
-                gotoxy(x+5, y+19); printf("Terima kasih! Program selesai.");
+                gotoxy(x+5, y+24); printf("Terima kasih! Program selesai.");
                 break;
                 
             default:
-                printf("Opsi tidak valid. Silakan pilih opsi 1-7.\n");
+                printf("Opsi tidak valid. Silakan pilih opsi 1-8.\n");
                 getch();
                 break;
         }

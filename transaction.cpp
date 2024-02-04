@@ -29,6 +29,11 @@ struct Products {
     float price;
 };
 
+struct Filter {
+	Date startDate;
+	Date endDate;
+};
+
 int countTrx = 0;
 
 FILE *fileTransactions, *listProducts;
@@ -42,7 +47,9 @@ Transaction getInputTransaction(){
     scanf("%d", &t.productId);
     
     gotoxy(x+5, y+21); printf("Nama Pemesan : ");
-    scanf("%s", &t.customerName);
+    fflush(stdin);  
+    fgets(t.customerName, sizeof(t.customerName), stdin); 
+    t.customerName[strcspn(t.customerName, "\n")] = '\0';
     
     gotoxy(x+5, y+22); printf("Jumlah : ");
     scanf("%d", &t.amount);
@@ -210,33 +217,42 @@ void updateQuantityProductById(Products p) {
 	} 
 }
 
+void clearTableScreen2() {
+	for (int i=1; i<height-4; i++) {
+		for (int j=1; j<width-50; j++) {
+			gotoxy(x+j+50, y+i+6); printf(" ");		
+		}
+	}	
+}
+
 void viewProducts() {
 	
 	gotoxy(x+50, y+5); printf("Jenis Produk");
 	gotoxy(x+50, y+6); drawline(60);
-	
-	int countProducts = 0;
+    
+    clearTableScreen2();
 	
 	// Open the file in read mode
     listProducts = fopen(fileListProductsName, "r");
-    if (listProducts == NULL) {
+    if (fileProducts == NULL) {
         perror("Error opening file products");
     }
 
     char row[MAX_ROW_LENGTH];
     int isFirstRow = 1;
     
-	// Read and loop through rows of data
-	int i = 1;
+	// Read and loop through rows of data    
+    int rowCount = 0;   
     while (fgets(row, sizeof(row), listProducts) != NULL) {
-    	
+    	    	
  		// Skip the first row (header)
-        if (isFirstRow) {	
-        	gotoxy(x+50, y+7); printf("ID");
-			gotoxy(x+57, y+7); printf("| Nama Produk");
-			gotoxy(x+85, y+7); printf("| Jumlah");
-			gotoxy(x+95, y+7); printf("| Harga");
-			
+        if (isFirstRow) {
+        	gotoxy(x+50, y+7); printf("%c ID", separator);
+			gotoxy(x+57, y+7); printf("%c Nama Produk", separator);
+			gotoxy(x+85, y+7); printf("%c Jumlah", separator);
+			gotoxy(x+95, y+7); printf("%c Harga", separator);
+        	gotoxy(x+50, y+8); drawline(60);
+        	
             isFirstRow = 0;
             continue;
         }
@@ -244,7 +260,7 @@ void viewProducts() {
         // Tokenize the line using strtok based on the pipe character '|'
         char *data = strtok(row, "|");
  
-        Products product;
+        Product product;
  
         int fieldCount = 0;
         while (data != NULL) {
@@ -270,27 +286,45 @@ void viewProducts() {
             fieldCount++;
         }
  		
- 		gotoxy(x+50, y+i+7); printf("%d", product.id);
-		gotoxy(x+57, y+i+7); printf("| %s ", product.name);
-		gotoxy(x+85, y+i+7); printf("| %d ", product.quantity);
-		gotoxy(x+95, y+i+7); printf("| %.0f ", product.price);
+ 		gotoxy(x+50, y+rowCount+9); printf("%c %d", separator, product.id);
+		gotoxy(x+57, y+rowCount+9); printf("%c %s ", separator, product.name);
+		gotoxy(x+85, y+rowCount+9); printf("%c %d ", separator, product.quantity);
+		gotoxy(x+95, y+rowCount+9); printf("%c %.0f ", separator, product.price);
 		
-		countProducts++;
-		i++;
+    	rowCount++;
     }
-
-	if (countProducts == 0) {
+    
+    
+	if (rowCount == 0) {
 		gotoxy(x+50, y+7); printf("Produk Masih Kosong");		
+		
+	} else {
+	    gotoxy(x+50, y+rowCount+9); drawline(60);
+	    
+	    for (int i = 0; i<count+3; i++) {
+	    	gotoxy(x+110, y+i+6); printf("%c", separator);
+		}
+		
+		int cord_x[5] = {50, 57, 85, 95, 110};
+		for (int i=0; i<4;i+=2) {
+		    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+		        gotoxy(x+ cord_x[j], y+i+6); printf("+");
+		    }
+		}
+		 
+		for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+		    gotoxy(x+ cord_x[j], y+count+9); printf("+");
+		}
 	}  
 	
     // Close the file
-    fclose(listProducts);
+    fclose(listProducts); 
 }
 
 void recordTransactionSales() {
 	
 	gotoxy(x+5, y+18); printf("Penjualan");
-	gotoxy(x+5, y+19); drawline(40);
+	gotoxy(x+5, y+19); drawline(35);
 	
 	viewProducts();
 	
@@ -339,38 +373,42 @@ void recordTransactionSales() {
 
 void displayTransactionSales() {
 			
-	gotoxy(x+48, y+5); printf("Lihat Penjualan (per Tanggal)");
-	gotoxy(x+48, y+6); drawline(64);
+	gotoxy(x+48, y+5); printf("Lihat Penjualan");
+	gotoxy(x+45, y+7); drawline(67);
 	
 	if (countTrx == 0) {
-		gotoxy(x+48, y+7); printf("Transaksi Masih Kosong");		
+		gotoxy(x+45, y+8); printf("Transaksi Masih Kosong");		
 	} 
 	
 	// Open the file in read mode
     fileTransactions = fopen(fileTransactionsName, "r");
     if (fileTransactions == NULL) {
-        perror("Error opening file transactions");
+        gotoxy(x+45, y+9); perror("Error opening file transactions");
     }
 
     char row[MAX_ROW_LENGTH];
     int isFirstRow = 1;
     
 	// Read and loop through rows of data    
-	int i = 1;
+	int rowCount = 0;
     while (fgets(row, sizeof(row), fileTransactions) != NULL) {
  
  		// Skip the first row (header)
         if (isFirstRow) {
-        	gotoxy(x+48,  y+7); printf("Tanggal");
-			gotoxy(x+59,  y+7); printf("%c Nama Pemesan", separator);
-			gotoxy(x+78,  y+7); printf("%c Produk", separator);
-			gotoxy(x+93,  y+7); printf("%c Jumlah", separator);
-			gotoxy(x+102, y+7); printf("%c Nominal", separator);
-			 	
+        	gotoxy(x+45,  y+8); printf("%c Tanggal", separator);
+			gotoxy(x+58,  y+8); printf("%c Nama Pemesan", separator);
+			gotoxy(x+75,  y+8); printf("%c Produk", separator);
+			gotoxy(x+92,  y+8); printf("%c Jumlah", separator);
+			gotoxy(x+102, y+8); printf("%c Nominal", separator);
+			gotoxy(x+45, y+9); drawline(67);
+			
             isFirstRow = 0;
             continue;
         }
         
+        if (rowCount == 15) {
+        	break;
+		}
         // Tokenize the line using strtok based on the pipe character '|'
         char *data = strtok(row, "|");
  
@@ -409,20 +447,43 @@ void displayTransactionSales() {
             fieldCount++;
         }
  		
- 		gotoxy(x+48,  y+i+7); printf("%s", trxDate);
-		gotoxy(x+59,  y+i+7); printf("%c %s", separator, trx.customerName);
-		gotoxy(x+78,  y+i+7); printf("%c %s", separator, trx.productName);
-		gotoxy(x+93,  y+i+7); printf("%c %d", separator, trx.amount);
-		gotoxy(x+102, y+i+7); printf("%c %d", separator, trx.total);
+ 		gotoxy(x+45,  y+rowCount+10); printf("%c %s", separator, trxDate);
+		gotoxy(x+58,  y+rowCount+10); printf("%c %s", separator, trx.customerName);
+		gotoxy(x+75,  y+rowCount+10); printf("%c %s", separator, trx.productName);
+		gotoxy(x+92,  y+rowCount+10); printf("%c %d", separator, trx.amount);
+		gotoxy(x+102, y+rowCount+10); printf("%c %d", separator, trx.total);
 	
-		i++;		
+		rowCount++;		
     }
 
-
+	gotoxy(x+46, y+rowCount+10); drawline(67);
+    
+    for (int i = 0; i<rowCount+4; i++) {
+    	gotoxy(x+112, y+i+7); printf("%c", separator);
+	}
+	
+	int cord_x[6] = {45, 58, 75, 92, 102, 112};
+	for (int i=0; i<4;i+=2) {
+	    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+	        gotoxy(x+ cord_x[j], y+i+7); printf("+");
+	    }
+	}
+	 
+	for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+	    gotoxy(x+ cord_x[j], y+rowCount+10); printf("+");
+	}
+	
     // Close the file
     fclose(fileTransactions);
     
-    gotoxy(x+48, y+i+8); printf("Tekan ENTER untuk lanjut ");
+    gotoxy(x+74, y+5); printf("Tanggal Awal (dd-mm-yyyy) : ");
+	gotoxy(x+74, y+6); printf("Tanggal Akhir(dd-mm-yyyy) : ");
+	
+    Filter f;
+    gotoxy(x+102, y+5); scanf("%d-%d-%d", &f.startDate.dd, &f.startDate.mm, &f.startDate.yyyy);
+    gotoxy(x+102, y+6); scanf("%d-%d-%d", &f.endDate.dd, &f.endDate.mm, &f.endDate.yyyy);
+    
+    gotoxy(x+45, y+rowCount+11); printf("Tekan ENTER untuk lanjut ");
 	getch();	
 }
 
