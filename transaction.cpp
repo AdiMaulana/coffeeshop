@@ -13,6 +13,35 @@ struct Date {
 	int yyyy;
 }; 
 
+// Function to check if a given year is a leap year
+bool isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+// Function to validate a date
+bool isValidDate(struct Date date) {
+    if (date.yyyy < 1) {
+        return false;
+    }
+
+    if (date.mm < 1 || date.mm > 12) {
+        return false;
+    }
+
+    // Check if the day is valid based on the month
+    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    // Adjust February days for leap years
+    if (date.mm == 2 && isLeapYear(date.yyyy)) {
+        daysInMonth[2] = 29;
+    }
+
+    if (date.dd < 1 || date.dd > daysInMonth[date.mm]) {
+        return false;
+    }
+    
+    return true;
+}
+
 struct Transaction {
 	int productId;
 	char productName[50];
@@ -39,23 +68,118 @@ int countTrx = 0;
 FILE *fileTransactions, *listProducts;
 const char fileTransactionsName[] = "transactions.csv";
 const char fileListProductsName[] = "products.csv";
-	
+
+const char errMessageInvalidProductId[] = "(ID Produk Tidak Valid, Masukkan Angka Numerik)";	
+const char errMessageEmptyCustomerName[] = "(Nama Pemesan Harus Diisi)";
+const char errMessageMaxCustomerName[] = "(Nama Pemesan Maksimal 50 Karakter)";
+const char errMessageInvalidAmount[] = "(Jumlah Tidak Valid, Masukkan Angka Numerik)";
+const char errMessageInvalidDate[] = "(Tanggal Tidak Valid, Masukkan Tanggal Sesuai Format)";
+
 Transaction getInputTransaction(){
 	Transaction t;
 	
-    gotoxy(x+5, y+20); printf("Masukkan ID Produk yang Dipesan: ");
-    scanf("%d", &t.productId);
+	char inputTemp[100];
+	int length;
+	
+	int i = 1;   
+    do {
+		gotoxy(x+5, y+20); printf("Masukkan ID Produk yang Dipesan: ");
+    	
+    	fgets(inputTemp, sizeof(inputTemp), stdin);
+ 
+        if (sscanf(inputTemp, "%d", &t.productId) == 1) {
+	        
+			clearInput(strlen(errMessageInvalidProductId), x+5, y+21);	
+	        	
+	        break; // Exit the loop when a numeric input is provided
+	            
+	    } else {  
+	   		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+	
+	  		length = strlen(inputTemp);
+	    		
+	   		clearInput(length, x+38, y+20);		
+	   		
+	   		if (i != 1) {
+	   			gotoxy(x+5, y+21); printf(errMessageInvalidProductId);	
+			}
+	    }  
+		i++;  
+	} while(1);	
+		
+    do {
+		gotoxy(x+5, y+21); printf("Nama Pemesan : ");
+		
+		fflush(stdin);  
+	    
+		fgets(inputTemp, sizeof(inputTemp), stdin); 
+	    
+	    inputTemp[strcspn(inputTemp, "\n")] = '\0';
+				
+		if (strlen(inputTemp) > 50) {
+			
+			clearInput(strlen(inputTemp), x+20, y+21);		
     
-    gotoxy(x+5, y+21); printf("Nama Pemesan : ");
-    fflush(stdin);  
-    fgets(t.customerName, sizeof(t.customerName), stdin); 
-    t.customerName[strcspn(t.customerName, "\n")] = '\0';
+            gotoxy(x+5, y+22); printf(errMessageMaxCustomerName);
+            
+		} else if (strlen(inputTemp) < 1) {
+			
+			clearInput(strlen(inputTemp), x+20, y+21);		
     
-    gotoxy(x+5, y+22); printf("Jumlah : ");
-    scanf("%d", &t.amount);
+            gotoxy(x+5, y+22); printf(errMessageEmptyCustomerName);
+            
+		} else { 
+			clearInput(strlen(errMessageMaxCustomerName), x+5, y+22);	
+			
+			strcpy(t.customerName, inputTemp);
+    		break;
+		}
+	} while (1);
+
+    do {
+        gotoxy(x+5, y+22); printf("Jumlah : ");
+        
+        fgets(inputTemp, sizeof(inputTemp), stdin);
+ 
+        if (sscanf(inputTemp, "%d", &t.amount) == 1) {
+        
+			clearInput(strlen(errMessageInvalidAmount), x+5, y+23);	
+        	
+            break; // Exit the loop when a numeric input is provided
+            
+        } else {  
+    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+
+    		length = strlen(inputTemp);
+    		
+    		clearInput(length, x+14, y+22);		
     
-    gotoxy(x+5, y+23); printf("Tanggal Penjualan (dd-mm-yyyy): ");
-    scanf("%d-%d-%d", &t.date.dd, &t.date.mm, &t.date.yyyy);
+            gotoxy(x+5, y+23); printf(errMessageInvalidAmount);
+        }
+    } while (1);
+    
+    do {
+        gotoxy(x+5, y+23); printf("Tanggal Penjualan (dd-mm-yyyy): ");
+        
+        fgets(inputTemp, sizeof(inputTemp), stdin);
+        
+ 		sscanf(inputTemp, "%d-%d-%d", &t.date.dd, &t.date.mm, &t.date.yyyy);
+ 		
+       	if (isValidDate(t.date)) {
+       		clearInput(strlen(errMessageInvalidDate), x+5, y+24);	
+        	
+           	break; // Exit the loop when a numeric input is provided	
+ 
+		} else {  
+    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+
+    		length = strlen(inputTemp);
+    		
+    		clearInput(length, x+37, y+23);		
+    
+            gotoxy(x+5, y+24); printf(errMessageInvalidDate);
+        }
+    } while (!isValidDate(t.date));
     
     return t;
 }

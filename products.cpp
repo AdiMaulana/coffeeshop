@@ -28,6 +28,7 @@ void clearInput(int length, int x, int y) {
 }
 
 const char errMessageInvalidId[] = "(ID Produk Tidak Valid, Masukkan Angka Numerik)";
+const char errMessageEmptyName[] = "(Nama Produk Harus Diisi)";
 const char errMessageMaxName[] = "(Nama Produk Maksimal 30 Karakter)";
 const char errMessageInvalidQuantity[] = "(Jumlah Produk Tidak Valid, Masukkan Angka Numerik)";
 const char errMessageInvalidPrice[] = "(Harga Produk Tidak Valid, Masukkan Angka Numerik)";
@@ -39,6 +40,7 @@ Product getInputProduct(bool isNewProduct){
 	int length;
 	
 	if (isNewProduct) {
+		int i = 1;
 		do {
 			gotoxy(x+5, y+20); printf("ID Produk (Numerik) : ");
     		
@@ -56,10 +58,12 @@ Product getInputProduct(bool isNewProduct){
 	    		length = strlen(inputTemp);
 	    		
 	    		clearInput(length, x+27, y+20);		
-	    
-	            gotoxy(x+5, y+21); printf(errMessageInvalidId);
-	        }
-	        
+	    		
+	    		if (i != 1) {
+	    			gotoxy(x+5, y+21); printf(errMessageInvalidId);	
+				}
+	        }    
+			i++; 
 		} while(1);	
 	}
 	
@@ -76,6 +80,12 @@ Product getInputProduct(bool isNewProduct){
 			clearInput(strlen(inputTemp), x+23, y+21);		
     
             gotoxy(x+5, y+22); printf(errMessageMaxName);
+            
+		} else if (strlen(inputTemp) < 0) {
+			
+			clearInput(strlen(inputTemp), x+23, y+21);		
+    
+            gotoxy(x+5, y+22); printf(errMessageEmptyName);
             
 		} else { 
 			clearInput(strlen(errMessageMaxName), x+5, y+22);	

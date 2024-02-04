@@ -146,20 +146,81 @@ struct AppConfig {
     char address[50];
 };
 
+const char errMessageEmptyShopName[] = "(Nama Toko Harus Diisi)";
+const char errMessageMaxShopName[] = "(Nama Toko Maksimal 50 Karakter)";
+const char errMessageEmptyAddressName[] = "(Alamat Toko Harus Diisi)";
+const char errMessageMaxAddressName[] = "(Alamat Toko Maksimal 50 Karakter)";
+
+void clearMessage(int length, int x, int y) {
+	for(int i=0; i<length; i++) {
+		 gotoxy(x+i, y); printf(" ");
+	}	
+}
+
 AppConfig getInputConfig() {
 	
 	AppConfig config;
+		
+	char inputTemp[100];
+	int length;
+		
+    do {
+		gotoxy(x+5, y+20); printf("Masukkan Nama Toko: ");
+		
+		fflush(stdin);  // Clear the input buffer
+	    
+		fgets(inputTemp, sizeof(inputTemp), stdin); 
+	    // Remove the newline character, if present
+	    inputTemp[strcspn(inputTemp, "\n")] = '\0';
+				
+		if (strlen(inputTemp) > 50) {
 			
-	gotoxy(x+5, y+20); printf("Masukkan Nama Toko: ");
-	fflush(stdin);  // Clear the input buffer
-    fgets(config.name, sizeof(config.name), stdin);
-    // Remove the newline character, if present
-    config.name[strcspn(config.name, "\n")] = '\0';
+			clearMessage(strlen(inputTemp), x+25, y+20);		
     
-    gotoxy(x+5, y+21); printf("Alamat Toko: ");
-    fgets(config.address, sizeof(config.address), stdin);
-    // Remove the newline character, if present
-    config.address[strcspn(config.address, "\n")] = '\0';
+            gotoxy(x+5, y+21); printf(errMessageMaxShopName);
+            
+		} else if (strlen(inputTemp) < 1) {
+			
+			clearMessage(strlen(errMessageMaxShopName), x+25, y+20);
+			
+            gotoxy(x+5, y+21); printf(errMessageEmptyShopName);
+            
+		} else { 
+			clearMessage(strlen(errMessageMaxShopName), x+5, y+21);	
+			
+			strcpy(config.name, inputTemp);
+    		break;
+		}
+	} while (1);
+        
+    do {
+		gotoxy(x+5, y+21); printf("Alamat Toko: ");
+		
+		fflush(stdin);  // Clear the input buffer
+	    
+		fgets(inputTemp, sizeof(inputTemp), stdin); 
+	    // Remove the newline character, if present
+	    inputTemp[strcspn(inputTemp, "\n")] = '\0';
+				
+		if (strlen(inputTemp) > 50) {
+			
+			clearMessage(strlen(inputTemp), x+18, y+21);		
+    
+            gotoxy(x+5, y+22); printf(errMessageMaxAddressName);
+            
+		} else if (strlen(inputTemp) < 1) {
+			
+			clearMessage(strlen(errMessageMaxAddressName), x+18, y+21);
+			
+            gotoxy(x+5, y+22); printf(errMessageEmptyAddressName);
+            
+		} else { 
+			clearMessage(strlen(errMessageMaxAddressName), x+5, y+22);	
+			
+			strcpy(config.address, inputTemp);
+    		break;
+		}
+	} while (1);
  
     return config;
 }
