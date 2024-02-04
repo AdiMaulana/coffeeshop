@@ -2,7 +2,6 @@
  
 #include "products.cpp"
 #include "transaction.cpp"
-#include "application.cpp"
 
 int main() {
 	
