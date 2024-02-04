@@ -213,7 +213,7 @@ void updateQuantityProductById(Products p) {
 		    perror("Error renaming file"); 
 		}
 		
-		gotoxy(x+5, y+26); printf("Stock Produk %d berhasil diupdate", targetId);	    
+//		gotoxy(x+5, y+26); printf("Stock Produk %d berhasil diupdate", targetId);	    
 	} 
 }
 
@@ -361,7 +361,8 @@ void recordTransactionSales() {
     
     countTrx++;
     
-    gotoxy(x+5, y+25); printf("Penjualan berhasil dicatat. Total penjualan: Rp. %d", trx.total);
+    gotoxy(x+5, y+25); printf("Penjualan & stock produk berhasil dicatat.");
+    gotoxy(x+5, y+26); printf("Total penjualan: Rp. %d", trx.total);
     
     updateQuantityProductById(product);
     
