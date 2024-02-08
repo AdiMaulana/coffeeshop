@@ -12,7 +12,8 @@ int main() {
 	do {
         displayMenu();
            
-        scanf("%d", &option);
+        gotoxy(x+29, y+16); scanf("%d", &option);
+        
         switch (option) {
             case 1:
                 addProducts();

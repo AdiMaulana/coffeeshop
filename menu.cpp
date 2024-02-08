@@ -138,7 +138,6 @@ void displayMenu() {
 	gotoxy(x+5, y+14); printf("8. Keluar");
     gotoxy(x+5, y+15); drawline(35);
     gotoxy(x+5, y+16); printf("Pilih Opsi Anda (1-8) : ");
-	gotoxy(x+29, y+16);
 }
 
 struct AppConfig {

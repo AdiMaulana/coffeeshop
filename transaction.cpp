@@ -6,12 +6,40 @@
 
 #define MAX_ROW_LENGTH 1024
 #define MAX_FIELDS 4
+#define MAX_ROWS_PER_PAGE 14 // Maximum number of rows per page
 
 struct Date {
 	int dd;
 	int mm;
 	int yyyy;
 }; 
+
+// Function to compare two dates
+// Returns:
+//   -1 if date1 is earlier than date2
+//    0 if date1 is equal to date2
+//    1 if date1 is later than date2
+int compareDates(struct Date date1, struct Date date2) {
+    if (date1.yyyy < date2.yyyy) {
+        return -1;
+    } else if (date1.yyyy > date2.yyyy) {
+        return 1;
+    } else {
+        if (date1.mm < date2.mm) {
+            return -1;
+        } else if (date1.mm > date2.mm) {
+            return 1;
+        } else {
+            if (date1.dd < date2.dd) {
+                return -1;
+            } else if (date1.dd > date2.dd) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+}
 
 // Function to check if a given year is a leap year
 bool isLeapYear(int year) {
@@ -74,6 +102,7 @@ const char errMessageEmptyCustomerName[] = "(Nama Pemesan Harus Diisi)";
 const char errMessageMaxCustomerName[] = "(Nama Pemesan Maksimal 50 Karakter)";
 const char errMessageInvalidAmount[] = "(Jumlah Tidak Valid, Masukkan Angka Numerik)";
 const char errMessageInvalidDate[] = "(Tanggal Tidak Valid, Masukkan Tanggal Sesuai Format)";
+const char errMessageInvalidFormatDate[] = "(Format Tanggal Tidak Valid)";
 
 Transaction getInputTransaction(){
 	Transaction t;
@@ -159,7 +188,7 @@ Transaction getInputTransaction(){
     } while (1);
     
     do {
-        gotoxy(x+5, y+23); printf("Tanggal Penjualan (dd-mm-yyyy): ");
+        gotoxy(x+5, y+23); printf("Tanggal (dd-mm-yyyy): ");
         
         fgets(inputTemp, sizeof(inputTemp), stdin);
         
@@ -175,13 +204,137 @@ Transaction getInputTransaction(){
 
     		length = strlen(inputTemp);
     		
-    		clearInput(length, x+37, y+23);		
+    		clearInput(length, x+27, y+23);		
     
             gotoxy(x+5, y+24); printf(errMessageInvalidDate);
         }
     } while (!isValidDate(t.date));
     
     return t;
+}
+
+Filter getInputFilterTransaction() {
+	
+	Filter f;
+	
+	char inputTemp[100];
+	int length;
+	
+	int i = 1;
+    do {
+        gotoxy(x+74, y+5); printf("Tanggal Awal (dd-mm-yyyy) : ");
+        
+        fgets(inputTemp, sizeof(inputTemp), stdin);
+        
+ 		sscanf(inputTemp, "%d-%d-%d",  &f.startDate.dd, &f.startDate.mm, &f.startDate.yyyy);
+ 		
+       	if (isValidDate(f.startDate)) {
+       		clearInput(strlen(errMessageInvalidFormatDate), x+74, y+7);	
+        	
+           	break; // Exit the loop when a date input is provided	
+ 
+		} else {  
+    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+
+    		length = strlen(inputTemp);
+    		
+    		clearInput(length, x+102, y+5);		
+    		
+    		if (i != 1) {
+    			gotoxy(x+74, y+7); printf(errMessageInvalidFormatDate);	
+			}
+        }
+        i++;
+    } while (!isValidDate(f.startDate));
+    
+    do {
+        gotoxy(x+74, y+6); printf("Tanggal Akhir(dd-mm-yyyy) : ");
+        
+        fgets(inputTemp, sizeof(inputTemp), stdin);
+        
+ 		sscanf(inputTemp, "%d-%d-%d", &f.endDate.dd, &f.endDate.mm, &f.endDate.yyyy);
+ 		
+       	if (isValidDate(f.endDate)) {
+       		clearInput(strlen(errMessageInvalidFormatDate), x+74, y+7);	
+        	
+           	break; // Exit the loop when a date input is provided	
+ 
+		} else {  
+    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+
+    		length = strlen(inputTemp);
+    		
+    		clearInput(length, x+102, y+6);		
+    
+            gotoxy(x+74, y+7); printf(errMessageInvalidFormatDate);
+        }
+    } while (!isValidDate(f.endDate));
+	
+	return f;
+}
+
+int countTrxByFilter(Filter f) {
+			
+	if (countTrx == 0) {
+		return 0;
+		
+	} else {
+		
+		int countFilter = 0; 
+		
+		// Open the file in read mode
+	    fileTransactions = fopen(fileTransactionsName, "r");
+	    if (fileTransactions == NULL) {
+	        gotoxy(x+45, y+9); perror("Error opening file transactions");
+	    }
+		 
+	    char row[MAX_ROW_LENGTH];
+	    int lineNumber = 1; 
+	    
+		// Read and loop through rows of data    
+	    while (fgets(row, sizeof(row), fileTransactions) != NULL) {
+	 
+	        if (lineNumber == 1) { // Skip the first row (header) 
+	 			lineNumber++;
+	            continue;
+	        }
+	         
+	        // Tokenize the line using strtok based on the pipe character '|'
+	        char *data = strtok(row, "|");
+	 
+	        Transaction trx;
+	        
+	        char trxDate[12];
+	 
+	        int fieldCount = 0;
+	        while (data != NULL) {
+	            switch (fieldCount) { 
+	                case 4: // field transaction date
+	                    strncpy(trxDate, data, sizeof(trxDate));
+	                    break; 
+	            }
+	
+	            // Get the next field
+	            data = strtok(NULL, "|");
+	
+	            fieldCount++;
+	        }
+	        
+	        sscanf(trxDate, "%d-%d-%d", &trx.date.dd, &trx.date.mm, &trx.date.yyyy);
+	        
+	        // compare transaction date is in range filter
+	        if (compareDates(trx.date, f.startDate) >= 0 && compareDates(trx.date, f.endDate) <= 0 ) {
+	        	countFilter++;		
+			}
+	    }
+	
+	    // Close the file
+	    fclose(fileTransactions);
+	    
+	    return countFilter;
+    }
+    
+    return 0;
 }
 
 Products findProductById(int id) {
@@ -243,7 +396,6 @@ Products findProductById(int id) {
      
     return product; 
 }
-
 
 int isUpdateRow(const Products *product, int targetId) {
     return product->id == targetId;
@@ -343,8 +495,8 @@ void updateQuantityProductById(Products p) {
 
 void clearTableScreen2() {
 	for (int i=1; i<height-4; i++) {
-		for (int j=1; j<width-50; j++) {
-			gotoxy(x+j+50, y+i+6); printf(" ");		
+		for (int j=1; j<width-45; j++) {
+			gotoxy(x+j+44, y+i+9); printf(" ");		
 		}
 	}	
 }
@@ -485,8 +637,8 @@ void recordTransactionSales() {
     
     countTrx++;
     
-    gotoxy(x+5, y+25); printf("Penjualan & stock produk berhasil dicatat.");
-    gotoxy(x+5, y+26); printf("Total penjualan: Rp. %d", trx.total);
+    gotoxy(x+5, y+25); printf("Penjualan & stock berhasil diupdate.");
+    gotoxy(x+5, y+26); printf("Total transaksi: Rp. %d", trx.total);
     
     updateQuantityProductById(product);
     
@@ -496,120 +648,155 @@ void recordTransactionSales() {
     getch();
 }
 
-void displayTransactionSales() {
-			
-	gotoxy(x+48, y+5); printf("Lihat Penjualan");
-	gotoxy(x+45, y+7); drawline(67);
+void drawTableTransactions() {
 	
-	if (countTrx == 0) {
-		gotoxy(x+45, y+8); printf("Transaksi Masih Kosong");		
-	} 
-	
-	// Open the file in read mode
-    fileTransactions = fopen(fileTransactionsName, "r");
-    if (fileTransactions == NULL) {
-        gotoxy(x+45, y+9); perror("Error opening file transactions");
-    }
-
-    char row[MAX_ROW_LENGTH];
-    int isFirstRow = 1;
+    gotoxy(x+45, y+10); drawline(67);
+    gotoxy(x+45, y+MAX_ROWS_PER_PAGE+11); drawline(67);
     
-	// Read and loop through rows of data    
-	int rowCount = 0;
-    while (fgets(row, sizeof(row), fileTransactions) != NULL) {
- 
- 		// Skip the first row (header)
-        if (isFirstRow) {
-        	gotoxy(x+45,  y+8); printf("%c Tanggal", separator);
-			gotoxy(x+58,  y+8); printf("%c Nama Pemesan", separator);
-			gotoxy(x+75,  y+8); printf("%c Produk", separator);
-			gotoxy(x+92,  y+8); printf("%c Jumlah", separator);
-			gotoxy(x+102, y+8); printf("%c Nominal", separator);
-			gotoxy(x+45, y+9); drawline(67);
-			
-            isFirstRow = 0;
-            continue;
-        }
-        
-        if (rowCount == 15) {
-        	break;
-		}
-        // Tokenize the line using strtok based on the pipe character '|'
-        char *data = strtok(row, "|");
- 
-        Transaction trx;
-        
-        char trxDate[12];
- 
-        int fieldCount = 0;
-        while (data != NULL) {
-            switch (fieldCount) {
-                case 0:
-                    trx.productId = atoi(data);
-                    break;
-                case 1:
-                    strncpy(trx.productName, data, sizeof(trx.productName) - 1);
-                    trx.productName[sizeof(trx.productName) - 1] = '\0'; // Ensure null-termination
-                    break;
-				case 2:
-                    strncpy(trx.customerName, data, sizeof(trx.customerName) - 1);
-                    trx.customerName[sizeof(trx.customerName) - 1] = '\0'; // Ensure null-termination
-                    break;
-                case 3:
-					trx.amount = atoi(data);
-                    break;
-                case 4:
-                    strncpy(trxDate, data, sizeof(trxDate));
-                    break;
-                case 5:
-					trx.total = atoi(data);
-                    break;
-            }
-
-            // Get the next field
-            data = strtok(NULL, "|");
-
-            fieldCount++;
-        }
- 		
- 		gotoxy(x+45,  y+rowCount+10); printf("%c %s", separator, trxDate);
-		gotoxy(x+58,  y+rowCount+10); printf("%c %s", separator, trx.customerName);
-		gotoxy(x+75,  y+rowCount+10); printf("%c %s", separator, trx.productName);
-		gotoxy(x+92,  y+rowCount+10); printf("%c %d", separator, trx.amount);
-		gotoxy(x+102, y+rowCount+10); printf("%c %d", separator, trx.total);
-	
-		rowCount++;		
-    }
-
-	gotoxy(x+46, y+rowCount+10); drawline(67);
-    
-    for (int i = 0; i<rowCount+4; i++) {
-    	gotoxy(x+112, y+i+7); printf("%c", separator);
+    for (int i = 0; i<MAX_ROWS_PER_PAGE+4; i++) {
+    	gotoxy(x+45,  y+i+8); printf("%c", separator);
+		gotoxy(x+58,  y+i+8); printf("%c", separator);
+		gotoxy(x+75,  y+i+8); printf("%c", separator);
+		gotoxy(x+92,  y+i+8); printf("%c", separator);
+		gotoxy(x+102, y+i+8); printf("%c", separator);
+		gotoxy(x+112, y+i+8); printf("%c", separator);
 	}
 	
 	int cord_x[6] = {45, 58, 75, 92, 102, 112};
 	for (int i=0; i<4;i+=2) {
 	    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
-	        gotoxy(x+ cord_x[j], y+i+7); printf("+");
+	        gotoxy(x+ cord_x[j], y+i+8); printf("+");
 	    }
 	}
 	 
 	for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
-	    gotoxy(x+ cord_x[j], y+rowCount+10); printf("+");
+	    gotoxy(x+ cord_x[j], y+MAX_ROWS_PER_PAGE+11); printf("+");
 	}
+}
+
+void displayTransactionSales() {
+			
+	gotoxy(x+48, y+5); printf("Lihat Penjualan"); 
+	gotoxy(x+45, y+8); drawline(67);
 	
-    // Close the file
-    fclose(fileTransactions);
-    
-    gotoxy(x+74, y+5); printf("Tanggal Awal (dd-mm-yyyy) : ");
-	gotoxy(x+74, y+6); printf("Tanggal Akhir(dd-mm-yyyy) : ");
+	if (countTrx == 0) {
+		gotoxy(x+45, y+9); printf("Transaksi Masih Kosong"); 
+		
+	} else {
+		
+		Filter f = getInputFilterTransaction();
+		
+		int countTrxFilter = countTrxByFilter(f); 
+			    
+		// Open the file in read mode
+	    fileTransactions = fopen(fileTransactionsName, "r");
+	    if (fileTransactions == NULL) {
+	        gotoxy(x+45, y+9); perror("Error opening file transactions");
+	    }
+		
+		drawTableTransactions();
+		
+	    char row[MAX_ROW_LENGTH];
+	    int lineNumber = 1;
+	    int page = 1;
+	     
+		// Read and loop through rows of data    
+		int rowCounter = 0;
+		int rowLine = 0;
+	    while (fgets(row, sizeof(row), fileTransactions) != NULL) {
+	 
+	        if (lineNumber == 1) { // Skip the first row (header)
+	        	gotoxy(x+47,  y+9); printf("Tanggal");
+				gotoxy(x+60,  y+9); printf("Nama Pemesan");
+				gotoxy(x+77,  y+9); printf("Produk");
+				gotoxy(x+94,  y+9); printf("Jumlah");
+				gotoxy(x+104, y+9); printf("Nominal");
+				
+	 			lineNumber++;
+	            continue;
+	        }
+	        
+	        if (rowCounter % MAX_ROWS_PER_PAGE == 0) {
+	            gotoxy(x+48, y+7); printf("Page %d of %d : ", page++, (countTrxFilter + MAX_ROWS_PER_PAGE - 1) / MAX_ROWS_PER_PAGE);
+	        }
+	        
+	        // Tokenize the line using strtok based on the pipe character '|'
+	        char *data = strtok(row, "|");
+	 
+	        Transaction trx;
+	        
+	        char trxDate[12];
+	 
+	        int fieldCount = 0;
+	        while (data != NULL) {
+	            switch (fieldCount) {
+	                case 0:
+	                    trx.productId = atoi(data);
+	                    break;
+	                case 1:
+	                    strncpy(trx.productName, data, sizeof(trx.productName) - 1);
+	                    trx.productName[sizeof(trx.productName) - 1] = '\0'; // Ensure null-termination
+	                    break;
+					case 2:
+	                    strncpy(trx.customerName, data, sizeof(trx.customerName) - 1);
+	                    trx.customerName[sizeof(trx.customerName) - 1] = '\0'; // Ensure null-termination
+	                    break;
+	                case 3:
+						trx.amount = atoi(data);
+	                    break;
+	                case 4:
+	                    strncpy(trxDate, data, sizeof(trxDate));
+	                    break;
+	                case 5:
+						trx.total = atoi(data);
+	                    break;
+	            }
 	
-    Filter f;
-    gotoxy(x+102, y+5); scanf("%d-%d-%d", &f.startDate.dd, &f.startDate.mm, &f.startDate.yyyy);
-    gotoxy(x+102, y+6); scanf("%d-%d-%d", &f.endDate.dd, &f.endDate.mm, &f.endDate.yyyy);
+	            // Get the next field
+	            data = strtok(NULL, "|");
+	
+	            fieldCount++;
+	        }
+	        
+	        sscanf(trxDate, "%d-%d-%d", &trx.date.dd, &trx.date.mm, &trx.date.yyyy);
+	        
+	 		 // compare transaction date is in range filter
+	        if (compareDates(trx.date, f.startDate) >= 0 && compareDates(trx.date, f.endDate) <= 0 ) {
+	        	
+	        	gotoxy(x+47,  y+rowLine+11); printf("%s", trxDate);
+				gotoxy(x+60,  y+rowLine+11); printf("%s", trx.customerName);
+				gotoxy(x+77,  y+rowLine+11); printf("%s", trx.productName);
+				gotoxy(x+94,  y+rowLine+11); printf("%d", trx.amount);
+				gotoxy(x+104, y+rowLine+11); printf("%d", trx.total);	
+				
+				rowCounter++;		
+				rowLine++;	
+						
+				char next;
+				
+				// If reached the maximum rows per page, wait for user input to continue
+		        if (rowCounter % MAX_ROWS_PER_PAGE == 0) {
+		            gotoxy(x+45, y+MAX_ROWS_PER_PAGE+12); printf("Press Enter to continue to the next page...");
+		            next = getch();  
+		            
+		            rowLine = 0; 
+		            
+		            clearTableScreen2();
+		            drawTableTransactions();
+		        }	
+	        
+	        } else {
+	        	continue; 
+			}
+	    }
+	
+	    // Close the file
+	    fclose(fileTransactions);
+    }
+     
+    gotoxy(x+45, y+MAX_ROWS_PER_PAGE+12); printf("Press Enter to continue to the next page...");
     
-    gotoxy(x+45, y+rowCount+11); printf("Tekan ENTER untuk lanjut ");
-	getch();	
+    char next = getch();	
 }
 
 void initTransactions() {
