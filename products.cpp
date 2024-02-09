@@ -28,6 +28,7 @@ void clearInput(int length, int x, int y) {
 }
 
 const char errMessageInvalidId[] = "(ID Produk Tidak Valid, Masukkan Angka Numerik)";
+const char errMessageProductIdNotFound[] = "(ID Produk Tidak Ditemukan)";
 const char errMessageEmptyName[] = "(Nama Produk Harus Diisi)";
 const char errMessageMaxName[] = "(Nama Produk Maksimal 30 Karakter)";
 const char errMessageInvalidQuantity[] = "(Jumlah Produk Tidak Valid, Masukkan Angka Numerik)";
@@ -159,91 +160,93 @@ void displayProducts(bool holdScreen) {
 		
 	if (count == 0) {
 		gotoxy(x+50, y+7); printf("Produk Masih Kosong");		
-	} 
-	
-	// Open the file in read mode
-    fileProducts = fopen(fileProductsName, "r");
-    if (fileProducts == NULL) {
-        perror("Error opening file products");
-    }
-
-    char row[MAX_ROW_LENGTH];
-    int isFirstRow = 1;
-    
-	// Read and loop through rows of data    
-    int rowCount = 0;   
-    while (fgets(row, sizeof(row), fileProducts) != NULL) {
-    	    	
- 		// Skip the first row (header)
-        if (isFirstRow) {
-        	gotoxy(x+50, y+7); printf("%c ID", separator);
-			gotoxy(x+57, y+7); printf("%c Nama Produk", separator);
-			gotoxy(x+85, y+7); printf("%c Jumlah", separator);
-			gotoxy(x+95, y+7); printf("%c Harga", separator);
-        	gotoxy(x+50, y+8); drawline(60);
-        	
-            isFirstRow = 0;
-            continue;
-        }
-        
-        // Tokenize the line using strtok based on the pipe character '|'
-        char *data = strtok(row, "|");
- 
-        Product product;
- 
-        int fieldCount = 0;
-        while (data != NULL) {
-            switch (fieldCount) {
-                case 0:
-                    product.id = atoi(data);
-                    break;
-                case 1:
-                    strncpy(product.name, data, sizeof(product.name) - 1);
-                    product.name[sizeof(product.name) - 1] = '\0'; // Ensure null-termination
-                    break;
-                case 2:
-                    product.quantity = atoi(data);
-                    break;
-                case 3:
-                    product.price = atoi(data);
-                    break;
-            }
-
-            // Get the next field
-            data = strtok(NULL, "|");
-
-            fieldCount++;
-        }
- 		
- 		gotoxy(x+50, y+rowCount+9); printf("%c %d", separator, product.id);
-		gotoxy(x+57, y+rowCount+9); printf("%c %s ", separator, product.name);
-		gotoxy(x+85, y+rowCount+9); printf("%c %d ", separator, product.quantity);
-		gotoxy(x+95, y+rowCount+9); printf("%c %.0f ", separator, product.price);
 		
-    	rowCount++;
-    }
-    
-    gotoxy(x+50, y+rowCount+9); drawline(60);
-    
-    for (int i = 0; i<rowCount+3; i++) {
-    	gotoxy(x+110, y+i+6); printf("%c", separator);
+	}  else {
+		// Open the file in read mode
+	    fileProducts = fopen(fileProductsName, "r");
+	    if (fileProducts == NULL) {
+	        perror("Error opening file products");
+	    }
+	
+	    char row[MAX_ROW_LENGTH];
+	    int isFirstRow = 1;
+	    
+		// Read and loop through rows of data    
+	    int rowCount = 0;   
+	    while (fgets(row, sizeof(row), fileProducts) != NULL) {
+	    	    	
+	 		// Skip the first row (header)
+	        if (isFirstRow) {
+	        	gotoxy(x+50, y+7); printf("%c ID", separator);
+				gotoxy(x+57, y+7); printf("%c Nama Produk", separator);
+				gotoxy(x+85, y+7); printf("%c Jumlah", separator);
+				gotoxy(x+95, y+7); printf("%c Harga", separator);
+	        	gotoxy(x+50, y+8); drawline(60);
+	        	
+	            isFirstRow = 0;
+	            continue;
+	        }
+	        
+	        // Tokenize the line using strtok based on the pipe character '|'
+	        char *data = strtok(row, "|");
+	 
+	        Product product;
+	 
+	        int fieldCount = 0;
+	        while (data != NULL) {
+	            switch (fieldCount) {
+	                case 0:
+	                    product.id = atoi(data);
+	                    break;
+	                case 1:
+	                    strncpy(product.name, data, sizeof(product.name) - 1);
+	                    product.name[sizeof(product.name) - 1] = '\0'; // Ensure null-termination
+	                    break;
+	                case 2:
+	                    product.quantity = atoi(data);
+	                    break;
+	                case 3:
+	                    product.price = atoi(data);
+	                    break;
+	            }
+	
+	            // Get the next field
+	            data = strtok(NULL, "|");
+	
+	            fieldCount++;
+	        }
+	 		
+	 		gotoxy(x+50, y+rowCount+9); printf("%c %d", separator, product.id);
+			gotoxy(x+57, y+rowCount+9); printf("%c %s ", separator, product.name);
+			gotoxy(x+85, y+rowCount+9); printf("%c %d ", separator, product.quantity);
+			gotoxy(x+95, y+rowCount+9); printf("%c %.0f ", separator, product.price);
+			
+	    	rowCount++;
+	    }
+	    
+	    gotoxy(x+50, y+rowCount+9); drawline(60);
+	    
+	    for (int i = 0; i<rowCount+3; i++) {
+	    	gotoxy(x+110, y+i+6); printf("%c", separator);
+		}
+		
+		int cord_x[5] = {50, 57, 85, 95, 110};
+		for (int i=0; i<4;i+=2) {
+		    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+		        gotoxy(x+ cord_x[j], y+i+6); printf("+");
+		    }
+		    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
+		    	gotoxy(x+ cord_x[j], y+rowCount+9); printf("+");
+			}
+		}
+		 
+	    // Close the file
+	    fclose(fileProducts);
+	    
 	}
 	
-	int cord_x[5] = {50, 57, 85, 95, 110};
-	for (int i=0; i<4;i+=2) {
-	    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
-	        gotoxy(x+ cord_x[j], y+i+6); printf("+");
-	    }
-	    for (int j = 0; j < sizeof(cord_x) / sizeof(cord_x[0]); j++) {
-	    	gotoxy(x+ cord_x[j], y+rowCount+9); printf("+");
-		}
-	}
-	 
-    // Close the file
-    fclose(fileProducts);
-    
     if (holdScreen) {
-    	gotoxy(x+50, y+rowCount+10); printf("Tekan ENTER untuk lanjut ");
+    	gotoxy(x+50, y+count+10); printf("Tekan ENTER untuk lanjut ");
 		getch();	
 	}
 }
@@ -295,6 +298,65 @@ int isTargetRow(const Product *product, int targetId) {
     return product->id == targetId;
 }
 
+Product findById(int id) {	
+	// Open the file in read mode
+    fileProducts = fopen(fileProductsName, "r");
+    if (fileProducts == NULL) {
+        perror("Error opening file products");
+    }
+
+    char row[MAX_ROW_LENGTH];
+    int isFirstRow = 1;
+    
+    Product product;
+     
+	// Read and loop through rows of data    
+    while (fgets(row, sizeof(row), fileProducts) != NULL) {
+ 
+ 		// Skip the first row (header)
+        if (isFirstRow) {
+            isFirstRow = 0;
+            continue;
+        }
+        
+        // Tokenize the line using strtok based on the pipe character '|'
+        char *data = strtok(row, "|");
+ 
+        int fieldCount = 0;
+        while (data != NULL) {
+            switch (fieldCount) {
+                case 0:
+                    product.id = atoi(data);
+                    break;
+                case 1:
+                    strncpy(product.name, data, sizeof(product.name) - 1);
+                    product.name[sizeof(product.name) - 1] = '\0'; // Ensure null-termination
+                    break;
+                case 2:
+                    product.quantity = atoi(data);
+                    break;
+                case 3:
+                    product.price = atoi(data);
+                    break;
+            }
+
+            // Get the next field
+            data = strtok(NULL, "|");
+
+            fieldCount++;
+        }
+ 		
+ 		if (product.id == id) {
+ 			break;
+		}
+    }
+
+    // Close the file
+    fclose(fileProducts);
+     
+    return product; 
+}
+
 void updateProducts() {
 	
 	displayProducts(0);
@@ -303,11 +365,54 @@ void updateProducts() {
 		
 		gotoxy(x+5, y+18); printf("Update Data Produk");
 		gotoxy(x+5, y+19); drawline(35);
-		 
+		
 		int targetId;
-	    gotoxy(x+5, y+20); printf("Masukkan ID Produk yang akan diupdate: ");
-	    scanf("%d", &targetId);
+	     
+	    char inputTemp[100];
+		int length;
 	    
+	    int i = 1;
+		do {
+			gotoxy(x+5, y+20); printf("Masukkan ID Produk yang akan diupdate: ");
+    		
+    		fgets(inputTemp, sizeof(inputTemp), stdin);
+ 
+	        if (sscanf(inputTemp, "%d", &targetId) == 1) {
+	        	
+	        	Product p = findById(targetId);
+	        	if (p.id == targetId) {
+	        		clearInput(strlen(errMessageInvalidId), x+5, y+21);	
+	        	
+	            	break; // Exit the loop when a numeric input is provided	
+	            	
+				} else {
+					inputTemp[strcspn(inputTemp, "\n")] = '\0';
+	
+	    			length = strlen(inputTemp);
+	    		
+	    			clearInput(length, x+44, y+20);	
+					
+					clearInput(strlen(errMessageInvalidId), x+5, y+21);		
+	    			
+	    			if (i != 1) {
+						gotoxy(x+5, y+21); printf(errMessageProductIdNotFound);	
+					}
+				}
+				
+	        } else {  
+	    		inputTemp[strcspn(inputTemp, "\n")] = '\0';
+	
+	    		length = strlen(inputTemp);
+	    		
+	    		clearInput(length, x+44, y+20);		
+	    		
+	    		if (i != 1) {
+	    			gotoxy(x+5, y+21); printf(errMessageInvalidId);	
+				}
+	        }    
+			i++; 
+		} while(1);	
+		
 	    if (targetId > 0 ) {
 	    	
 	        Product newProduct = getInputProduct(false);
