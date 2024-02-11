@@ -1,0 +1,154 @@
+
+case 3:
+- buka file main.cpp 
+kode line 26 --> case 3 akan dijalankan ketika user menginputkan option nomor 3 yaitu fitur delete produk.
+                 ketika masuk kondisi 3 maka program akan menjalankan fungsi deleteProducts()
+                 di dalam fungsi tersebut ada beberapa perintah yang berisi sebagai berikut:
+
+buka file products.cpp, penjelasan kode sebagai berikut:
+kode line 516 --> berisi syntac untuk memanggil fungsi displayProducts() untuk menampilkan list produk yang sudah terdaftar
+kode line 518 --> melakukan pengecekan jika count yaitu variable yang berisi jumlah produk tidak sama dengan 0, berarti sudah ada produk yang didaftarkan.
+kode line 520 --> menampilkan output "Hapus Produk"
+kode line 521 --> menggambar garis horizontal sebanyak 35 karakter
+kode line 523 --> membuat variable file tampungan bernama tempFile yang bertipe File, berfungsi untuk file tampungan yang akan diisi data dari file original nya
+kode line 524 --> membuat variable nama file tampungan nya application
+kode line 526 --> membuat variable targetId bertipe integer sebagai inputan dari user untuk id produk yang akan dihapus
+kode line 527 --> menampilkan output "Masukan id produk yang akan dihapus"
+kode line 528 --> membuat inputan targetId 
+kode line 531 --> membuka file produk dengan mode read
+kode line 532 --> kemudian mengecek apakah file produk nya tidak kosong
+kode line 533 --> jika file produk nya kosong maka tampilkan keterangan error tersebut
+kode line 537 --> membuka file tampungan produk dengan mode write
+kode line 538 --> kemudian mengecek apakah file tampungan nya tidak kosong
+kode line 539 - 540 --> jika file tampungan nya kosong maka tampilkan keterangan error tersebut dan kemudian tutup file produk yang originalnya
+kode line 544 - 545 --> membuat variable array bernama row dan isFirstRow untuk mengecek row ke berapa ketika dilooping
+kode line 548 --> melakukan looping menggunakan while sebanyak row data di file csv produk
+kode line 551 - 554 --> dicek apakah looping pertama kali atau bukan, jika looping pertama maka tulis data untuk header di csv nya ke dalam file tampungan,
+                 kemudian set isFirstRow value nya 0 sehingga ketika looping selanjutnya tidak akan masuk kondisi itu lagi, lalu continue looping ke row selanjutnya
+
+kode line 557 --> membuat variable data bertipe pointer char yang berisi data dari row yang dipisah berdasarkan delimiter nya itu garis vertikal "|",
+                 fungsi strtok disitu untuk membagi string menjadi data-data yang terpisah berdasarkan karakter delimiter.
+
+kode line 559 --> membuat variable p dari tipe bentukan struct Product
+kode line 563 - 584 --> melakukan looping dari variable data yang telah displit tadi kemudian disett ke variable product p,
+kode line 586 --> dicek apakah produk id nya tidak sama dengan targetId, jika benar maka write data ke file tampungan untuk row yang sedang dilooping
+                 sebaliknya jika id nya sama berarti masuk kondisi else, cukup melakukan decrement count yaitu count nya berkurang 1
+                 jadi intinya copas row yang id nya beda dengan targetId dari file original ke file tampungan, 
+kode line 594 - 595 --> setelah melooping semua row, dibawah nya kemudian ada perintah untuk menutup kembali 2 file yang tadi yaitu file original dan file tampungan
+kode line 598 --> hapus file yang original nya, kemudian dicek apakah proses nya error, kalau error munculkan pesan error
+kode line 603 --> rename file tampungan menggunakan nama file produk yang original
+kode line 607 --> jika proses delete file original kemudian rename file tampungan berhasil maka munculkan output id produk berhasil dihapus
+kode line 610 --> menampilkan kembali list produk yang sudah terupdate datanya
+
+
+case 4:
+- buka file main.cpp 
+kode line 30 --> case 4 akan dijalankan ketika user menginputkan option nomor 4 yaitu fitur lihat produk.
+                 ketika masuk kondisi 4 maka program akan menjalankan fungsi displayProducts()
+                 di dalam fungsi tersebut ada beberapa perintah yang berisi sebagai berikut:
+
+- buka file products.cpp
+kode line 156 : berisi syntac untuk membersihkan screen dengan cara print spasi
+kode line 161 - 162 : melakukan pengecekan apakah count produk nya masih 0, jika ya maka dibawahnya munculkan output "produk masih kosong"
+kode line 166 : kondisi else yaitu ketika produk nya tidak kosong, kita buka file produk 
+kode line 176 : perintah untuk melakukan looping data dari file produk csv, looping sebanyak row nya
+
+kode line 191 --> membuat variable data bertipe pointer char yang berisi data dari row yang dipisah berdasarkan delimiter nya itu garis vertikal "|",
+                 fungsi strtok disitu untuk membagi string menjadi data-data yang terpisah berdasarkan karakter delimiter.
+
+kode line 193 --> membuat variable p dari tipe bentukan struct Product
+kode line 196 - 217 --> melakukan looping dari variable data yang telah displit tadi kemudian disett ke variable product p,
+kode line 219 - 222 --> menampilkan data produk yang berisi id, nama, jumlah dan harga
+kode line 227 - 241 --> berisi syntac untuk menggambar tabel di console menggunakan for loop
+kode line 244 --> ketika sudah selesai looping semua row data, kemudian kita tutup lagi file produk .csv 
+kode line 248 - 251 --> melakukan input getch untuk menahan layar nya sampai user menekan enter
+
+case 5:
+- buka file main.cpp 
+kode line 34 --> case 5 akan dijalankan ketika user menginputkan option nomor 5 yaitu fitur penjualan.
+                 ketika masuk kondisi 5 maka program akan menjalankan fungsi recordTransactionSales()
+                 di dalam fungsi tersebut ada beberapa perintah yang berisi sebagai berikut:
+
+- buka file transactions.cpp
+kode line 602 --> mencetak output "Penjualan" di layar aplikasi
+kode line 603 --> menampilkan garis sepanjang 35 karakter
+kode line 605 --> memanggil fungsi viewProducts untuk menampilkan list produk yang terdaftar
+kode line 607 --> membuat variable trx dari tipe bentukan Transaction, kemudian diisi dengan inputan transaksi dari user
+                  untuk field-field nya itu ada id produk yang dipesan, nama pemesan, jumlah dan tanggal transaksi
+
+kode line 610 - 621 --> membuka file transactions .csv jika belum ada maka system os akan create terlebih file nya, kalau sudah ada tinggal dibuka file nya
+kode line 623 - 625 --> dicek apakah countTrx nya masih kosong, variable countTrx itu berisi jumlah row transaksi, jika masih kosong maka 
+                  tulis data yang berisi title untuk header nya ke file transaction .csv
+
+kode line 627 --> membuat variable product yang berisi data produk yang dipilih berdasarkan id yang diinputkan user
+kode line 628 --> sett jumlah stock produk, value nya dikurangi jumlah yg dipesan
+kode line 630 --> untuk menghitung total transaksi yaitu harga produk dikali jumlah yang dipesan
+
+kode line 633 --> write data ke file transactions .csv berisi data-data transaksi yang sudah diinput dan dikalkulasi tadi
+kode line 636 --> tutup kembali file transactions .csv
+kode line 638 --> melakukan increment countTrx tambah 1 row, setiap ada input transaksi baru maka countTrx nya bertambah
+kode line 640 --> munculkan notif bahwa data transaksi dan stock produk berhasil diupdate
+kode line 641 --> munculkan total transaksi di layar
+
+kode line 643 --> menjalankan fungsi untuk update jumlah stock produk
+kode line 45  --> menampilkan kembali list produk yang sudah terupdate di system
+kode line 647 - 648 --> menahan layar sampai user menekan enter
+
+case 6:
+- buka file main.cpp 
+kode line 37 --> case 6 akan dijalankan ketika user menginputkan option nomor 6 yaitu fitur lihat penjualan.
+                 ketika masuk kondisi 6 maka program akan menjalankan fungsi displayTransactionSales()
+                 di dalam fungsi tersebut ada beberapa perintah yang berisi sebagai berikut:
+
+- buka file transactions.cpp
+kode line 679 --> mencetak output "Lihat Penjualan" di layar aplikasi
+kode line 680 --> menampilkan garis sepanjang 67 karakter
+
+kode line 682 - 683 --> dicek apakah countTrx nya sama dengan 0, jika ya berarti data transaksi masih kosong dan munculkan output nya di layar
+kode line 685 --> masuk kondisi else jika data transaksi ada isinya
+kode line 687 --> membuat variable f dengan tipe data bentukan Filter yang berisi inputan filter tanggal transaksi
+kode line 689 --> membuat varibale countTrxFilter dengan tipe data integer yang berisi jumlah row transaksi berdasarkan parameter filter tanggal diatas
+kode line 692 - 695 --> membuka file transactions .csv dengan mode read file, jika proses nya terjadi error maka munculkan pesan error tersebut
+kode line 697 --> menjalankan fungsi untuk menggambar table transaksi di layar aplikasi
+kode line 699 - 705 --> membuat variable yang akan digunakan pada saat looping data transaksi
+kode line 706 --> melakukan looping data transaksi dari file transactions .csv sebanyak row datanya
+kode line 708 - 717 --> melakukan pengecekan jika lineNumber nya sama dengan 1, maka print title header nya yang berisi tanggal, nama pemesan, produk, jumlah dan total
+                kemudian looping dilanjutkan tanpa mengeksekusi syntak kode dibawahnya
+
+kode line 719 --> untuk menampilkan jumlah page data transaksi
+kode line 726 --> buat variable trx dari tipe bentukan struct Transaction untuk menampung data transaksi dari row file csv yang sedang dilooping
+kode line 731 - 761 --> melakukan parsing data dari row csv dan sett value nya ke variable trx
+kode line 764 - 791 --> melakukan pengecekan jika data transaksi berada di range tanggal dintara filter tanggal awal dan tanggal akhir yang diinput user,
+                maka tampilkan data tersebut, selain itu masuk kondisi else yaitu langsung melanjutkan proses looping nya
+
+kode line 794 --> setelah selesai me-looping semua row data transaksi, kemudian kita tutup kembali file transactions .csv
+kode line 797 - 799 --> menahan layar sampai user menekan enter
+
+case 7:  
+- buka file main.cpp 
+kode line 42 --> fitur edit profil toko, untuk data yang diupdate nya itu nama dan alamat toko.
+                 ketika user menginputkan opsi nomor 7 maka fungsi updateConfigApp() akan dijalankan.
+                 di dalam fungsi tersebut ada beberapa perintah yang berisi sebagai berikut:
+
+- buka file menu.cpp
+kode line 229 --> menampilkan output "Edit Profil Toko"
+kode line 230 --> menggambar garis horizontal sebanyak 35 karakter
+kode line 232 --> membuat variable dari tipe data bentukan AppConfig untuk menampung inputan data dan informasi toko
+                  berupa nama toko dan alamat, kemudian user diminta untuk menginputkan 2 field tersebut.
+                  variable appConfig tersebut berisi data yang telah diinputkan oleh user kemudian disimpan ke dalam file application.properties
+
+kode line 234 --> berisi perintah untuk membuat variable fileProperties bertipe file  
+kode line 236 --> melakukan pengecekan jika fileProperties yang diopen tidak ada, maka munculkan error dibawah nya
+kode line 241 --> perintah fprintf berfungsi untuk mencatat data nama toko ke dalam fileProperties, isi nya dari inputan user
+kode line 242 --> perintah fprintf berfungsi untuk mencatat data alamt toko ke dalam fileProperties, isi nya dari inputan user
+kode line 244 --> setelah berhasil mencatat inputan nama dan alamat toko dan kemudian menyimpan nya ke file properties, selanjutnya file nya ditutup
+kode line 246 --> menampilkan notif keterangan bahwa config berhasil diupdate,
+kode line 247 --> diminta untuk menekan ENTER untuk lanjut, dan kemudian informasi nama dan alamat toko yang ada 
+                  di tampilan header maka akan otomatis terupdate sesuai inputan 
+
+case 8:
+- buka file main.cpp 
+kode line 46 --> ketika user menginputkan opsi nomor 8 maka proses perulangan atau looping akan berhenti, dan program otomatis keluar
+kode line 47 --> menampilkan pesan "Terima kasih! Program selesai"
+kode line 48 --> perintah break untuk keluar dari proses looping
+
